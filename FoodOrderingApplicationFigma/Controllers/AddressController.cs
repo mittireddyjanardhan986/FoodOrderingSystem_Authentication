@@ -9,7 +9,7 @@ namespace FoodOrderingApplicationFigma.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [AuthorizeRole(4)]
+    // [AuthorizeRole(4)]
     public class AddressController : ControllerBase
     {
         private readonly IAddressService _addressService;

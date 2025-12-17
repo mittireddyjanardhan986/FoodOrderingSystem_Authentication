@@ -10,84 +10,99 @@ using FoodOrderingApplicationFigma.Services.Service_Interfaces;
 using FoodOrderingApplicationFigma.Services.JwtService;
 using FoodOrderingApplicationFigma.Mappings;
 using FoodOrderingApplicationFigma.Middleware;
+
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
-using Microsoft.Extensions.DependencyInjection;
+using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+// --------------------------------------------------
+// Logging (important for Render)
+// --------------------------------------------------
+builder.Logging.ClearProviders();
+builder.Logging.AddConsole();
 
-builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
-builder.Services.AddDbContext<FoodOrderingDbContext>(op => op.UseSqlServer(builder.Configuration.GetConnectionString("DbConn")));
+// --------------------------------------------------
+// Connection String (Local + Render)
+// --------------------------------------------------
+var connectionString =
+    builder.Configuration.GetConnectionString("DbConn")
+    ?? Environment.GetEnvironmentVariable("DbConn");
 
+if (string.IsNullOrWhiteSpace(connectionString))
+{
+    throw new InvalidOperationException("Connection string 'DbConn' not found.");
+}
+
+// --------------------------------------------------
+// DbContext
+// --------------------------------------------------
+builder.Services.AddDbContext<FoodOrderingDbContext>(options =>
+    options.UseSqlServer(connectionString));
+
+// --------------------------------------------------
 // AutoMapper
+// --------------------------------------------------
 builder.Services.AddAutoMapper(typeof(MappingProfile));
 
-// User services (existing)
+// --------------------------------------------------
+// Repositories & Services
+// --------------------------------------------------
 builder.Services.AddScoped<IUsers<User>, UserRepository>();
+builder.Services.AddScoped<UserRepository>();
 builder.Services.AddScoped<IUserService, UserService>();
 
-// Address services
 builder.Services.AddScoped<IAddressRepository, AddressRepository>();
 builder.Services.AddScoped<IAddressService, AddressService>();
 
-// Admin services
 builder.Services.AddScoped<IAdminRepository, AdminRepository>();
 builder.Services.AddScoped<IAdminService, AdminService>();
 
-// City services
 builder.Services.AddScoped<ICityRepository, CityRepository>();
 builder.Services.AddScoped<ICityService, CityService>();
 
-// State services
 builder.Services.AddScoped<IStateRepository, StateRepository>();
 builder.Services.AddScoped<IStateService, StateService>();
 
-// Customer services
 builder.Services.AddScoped<ICustomerRepository, CustomerRepository>();
 builder.Services.AddScoped<ICustomerService, CustomerService>();
 
-// Restaurant services
 builder.Services.AddScoped<IRestaurantRepository, RestaurantRepository>();
 builder.Services.AddScoped<IRestaurantService, RestaurantService>();
 
-// Role services
 builder.Services.AddScoped<IRoleRepository, RoleRepository>();
 builder.Services.AddScoped<IRoleService, RoleService>();
 
-// JWT and Auth services
 builder.Services.AddScoped<IJwtService, JwtService>();
-builder.Services.AddScoped<UserRepository>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 
-// OTP, Email, and SMS services
-builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
+// --------------------------------------------------
+// OTP / Email / SMS
+// --------------------------------------------------
+builder.Services.Configure<EmailSettings>(
+    builder.Configuration.GetSection("EmailSettings"));
+
 builder.Services.AddScoped<IOtpService, OtpService>();
 builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddHttpClient<ISmsService, SmsService>();
 
-// CORS Policy
+// --------------------------------------------------
+// CORS (ALLOW ALL – SAFE FOR API)
+// --------------------------------------------------
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowReactApp",
-        policy =>
-        {
-            policy.WithOrigins("http://localhost:5173",   // Vite default port
-                               "http://localhost:3000",   // CRA default port
-                               "https://localhost:7066")  // Swagger / API host
-                  .AllowAnyHeader()
-                  .AllowAnyMethod()
-                  .AllowCredentials();
-        });
+    options.AddPolicy("AllowAll", policy =>
+        policy.AllowAnyOrigin()
+              .AllowAnyHeader()
+              .AllowAnyMethod());
 });
 
+// --------------------------------------------------
 // JWT Authentication
+// --------------------------------------------------
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
@@ -99,28 +114,52 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidateIssuerSigningKey = true,
             ValidIssuer = builder.Configuration["Jwt:Issuer"],
             ValidAudience = builder.Configuration["Jwt:Audience"],
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]!))
+            IssuerSigningKey = new SymmetricSecurityKey(
+                Encoding.UTF8.GetBytes(
+                    builder.Configuration["Jwt:Key"]
+                    ?? Environment.GetEnvironmentVariable("Jwt__Key")!
+                )
+            )
         };
     });
 
-builder.Services.AddControllers().AddJsonOptions(p => p.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles);
+// --------------------------------------------------
+// Controllers + JSON
+// --------------------------------------------------
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+        options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
+
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
+
 var app = builder.Build();
 
+// --------------------------------------------------
+// Middleware ORDER (CRITICAL)
+// --------------------------------------------------
+app.UseRouting();
 
-// Configure the HTTP request pipeline.
+// Swagger (enabled everywhere)
+app.UseSwagger();
+app.UseSwaggerUI(c =>
+{
+    c.RoutePrefix = "swagger";
+    c.SwaggerEndpoint("/swagger/v1/swagger.json", "Food Ordering API");
+});
 
-    app.UseSwagger();
-    app.UseSwaggerUI();
-
-
-// Global Exception Handler Middleware
+// Global middlewares
 app.UseMiddleware<GlobalExceptionHandlerMiddleware>();
-
-// Request Logging Middleware
 app.UseMiddleware<RequestLoggingMiddleware>();
 
-app.UseHttpsRedirection();
-app.UseCors("AllowReactApp");
+app.UseCors("AllowAll");
+
+// HTTPS only for local
+if (app.Environment.IsDevelopment())
+{
+    app.UseHttpsRedirection();
+}
+
 app.UseAuthentication();
 app.UseAuthorization();
 

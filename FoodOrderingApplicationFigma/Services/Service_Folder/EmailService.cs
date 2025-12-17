@@ -30,12 +30,7 @@ namespace FoodOrderingApplicationFigma.Services.Service_Folder
             
             try
             {
-                // Use SSL for port 465, StartTls for port 587
-                var secureOptions = _emailSettings.SmtpPort == 465 
-                    ? MailKit.Security.SecureSocketOptions.SslOnConnect 
-                    : MailKit.Security.SecureSocketOptions.StartTls;
-                    
-                await smtp.ConnectAsync(_emailSettings.SmtpServer, _emailSettings.SmtpPort, secureOptions);
+                await smtp.ConnectAsync(_emailSettings.SmtpServer, _emailSettings.SmtpPort, MailKit.Security.SecureSocketOptions.StartTls);
                 await smtp.AuthenticateAsync(_emailSettings.SenderEmail, _emailSettings.SenderPassword);
                 await smtp.SendAsync(email);
                 await smtp.DisconnectAsync(true);

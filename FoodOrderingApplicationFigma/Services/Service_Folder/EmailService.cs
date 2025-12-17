@@ -24,10 +24,26 @@ namespace FoodOrderingApplicationFigma.Services.Service_Folder
             email.Body = new TextPart("html") { Text = body };
 
             using var smtp = new SmtpClient();
-            await smtp.ConnectAsync(_emailSettings.SmtpServer, _emailSettings.SmtpPort, MailKit.Security.SecureSocketOptions.StartTls);
-            await smtp.AuthenticateAsync(_emailSettings.SenderEmail, _emailSettings.SenderPassword);
-            await smtp.SendAsync(email);
-            await smtp.DisconnectAsync(true);
+            
+            // Set timeout for cloud deployment
+            smtp.Timeout = 30000; // 30 seconds
+            
+            try
+            {
+                // Use SSL for port 465, StartTls for port 587
+                var secureOptions = _emailSettings.SmtpPort == 465 
+                    ? MailKit.Security.SecureSocketOptions.SslOnConnect 
+                    : MailKit.Security.SecureSocketOptions.StartTls;
+                    
+                await smtp.ConnectAsync(_emailSettings.SmtpServer, _emailSettings.SmtpPort, secureOptions);
+                await smtp.AuthenticateAsync(_emailSettings.SenderEmail, _emailSettings.SenderPassword);
+                await smtp.SendAsync(email);
+                await smtp.DisconnectAsync(true);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Email sending failed: {ex.Message}");
+            }
         }
     }
 }

@@ -21,11 +21,11 @@ namespace FoodOrderingApplicationFigma.Repository.Repositories
                 .ToListAsync();
         }
 
-        public async Task<Customer?> GetUserById(int id)
+        public async Task<Customer?> GetUserById(long id)
         {
             return await _context.Customers
                 .Include(c => c.User)
-                .FirstOrDefaultAsync(c => c.CustomerId == id);
+                .FirstOrDefaultAsync(c => c.customer_id == id);
         }
 
         public async Task<Customer> InsertUser(Customer entity)
@@ -37,7 +37,7 @@ namespace FoodOrderingApplicationFigma.Repository.Repositories
 
         public async Task<Customer?> UpdateUser(Customer entity)
         {
-            var existing = await _context.Customers.FindAsync(entity.CustomerId);
+            var existing = await _context.Customers.FindAsync(entity.customer_id);
             if (existing == null) return null;
 
             _context.Entry(existing).CurrentValues.SetValues(entity);
@@ -45,7 +45,7 @@ namespace FoodOrderingApplicationFigma.Repository.Repositories
             return existing;
         }
 
-        public async Task<bool> DeleteUser(int id)
+        public async Task<bool> DeleteUser(long id)
         {
             var customer = await _context.Customers.FindAsync(id);
             if (customer == null) return false;

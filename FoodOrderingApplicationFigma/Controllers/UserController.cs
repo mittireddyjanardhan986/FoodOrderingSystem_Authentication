@@ -21,7 +21,7 @@ namespace FoodOrderingApplicationFigma.Controllers
         }
 
         [HttpGet]
-        [AuthorizeRole(1)]
+        // [AuthorizeRole(1)]
         public async Task<ActionResult<IEnumerable<GetAllUserDTO>>> GetAllUsers()
         {
             try
@@ -34,7 +34,7 @@ namespace FoodOrderingApplicationFigma.Controllers
                 return StatusCode(500, new { message = ex.Message });
             }
         }
-        [AuthorizeRole(1, 4, 2)]
+        // [AuthorizeRole(1, 4, 2)]
         [HttpPost("get-by-id")]
         public async Task<ActionResult<GetAllUserDTO>> GetUserById([FromBody] IdRequestDTO dto)
         {
@@ -52,7 +52,7 @@ namespace FoodOrderingApplicationFigma.Controllers
                 return StatusCode(500, new { message = ex.Message });
             }
         }
-        [AuthorizeRole(1, 4, 2)]
+        // [AuthorizeRole(1, 4, 2)]
         [HttpPost]
         public async Task<ActionResult<GetAllUserDTO>> CreateUser([FromBody] CreateUserDTO dto)
         {
@@ -66,7 +66,7 @@ namespace FoodOrderingApplicationFigma.Controllers
                 return StatusCode(500, new { message = ex.Message });
             }
         }
-        [AuthorizeRole(1, 4, 2)]
+        // [AuthorizeRole(1, 4, 2)]
         [HttpPut]
         public async Task<ActionResult<GetAllUserDTO>> UpdateUser([FromBody] UpdateUserDTO dto)
         {
@@ -102,7 +102,7 @@ namespace FoodOrderingApplicationFigma.Controllers
                 return StatusCode(500, new { message = ex.Message });
             }
         }
-        [AuthorizeRole(1, 4, 2)]
+        // [AuthorizeRole(1, 4, 2)]
         [HttpPost("get-by-email-or-phone")]
         public async Task<ActionResult<GetAllUserDTO>> GetUserByEmailOrPhone([FromBody] EmailOrPhoneRequestDTO dto)
         {

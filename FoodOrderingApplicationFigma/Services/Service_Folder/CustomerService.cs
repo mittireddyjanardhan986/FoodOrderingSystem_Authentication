@@ -23,7 +23,7 @@ namespace FoodOrderingApplicationFigma.Services.Service_Folder
             return _mapper.Map<IEnumerable<GetCustomerDTO>>(customers);
         }
 
-        public async Task<GetCustomerDTO?> GetCustomerById(int id)
+        public async Task<GetCustomerDTO?> GetCustomerById(long id)
         {
             var customer = await _customerRepository.GetUserById(id);
             if (customer == null) throw new Exception("Customer Not Found");
@@ -47,7 +47,7 @@ namespace FoodOrderingApplicationFigma.Services.Service_Folder
             return _mapper.Map<GetCustomerDTO>(updatedCustomer);
         }
 
-        public async Task<GetCustomerDTO> DeleteCustomer(int id)
+        public async Task<GetCustomerDTO> DeleteCustomer(long id)
         {
             var customer = await _customerRepository.GetUserById(id);
             if (customer == null) throw new Exception("Customer Not Found");

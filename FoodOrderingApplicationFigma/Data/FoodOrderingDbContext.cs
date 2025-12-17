@@ -16,7 +16,7 @@ namespace FoodOrderingApplicationFigma.Data
 
         public virtual DbSet<Address> Addresses { get; set; }
 
-        public virtual DbSet<Admin> Admins { get; set; }
+        public virtual DbSet<Admin>? Admins { get; set; }
 
         public virtual DbSet<Cart> Carts { get; set; }
 
@@ -24,7 +24,7 @@ namespace FoodOrderingApplicationFigma.Data
 
         public virtual DbSet<City> Cities { get; set; }
 
-        public virtual DbSet<Customer> Customers { get; set; }
+        public virtual DbSet<Customer>? Customers { get; set; }
 
         public virtual DbSet<MenuCategory> MenuCategories { get; set; }
 
@@ -136,16 +136,16 @@ namespace FoodOrderingApplicationFigma.Data
 
             modelBuilder.Entity<Customer>(entity =>
             {
-                entity.HasKey(e => e.CustomerId).HasName("PK__Customer__A4AE64D8FC64ECDA");
+                entity.HasKey(e => e.customer_id);
 
                 entity.ToTable("Customers", "FoodOrderingSystem");
 
-                entity.HasIndex(e => e.UserId, "UQ__Customer__1788CC4DA3641E4D").IsUnique();
+                entity.Property(e => e.customer_id).HasColumnName("customer_id");
+                entity.Property(e => e.user_id).HasColumnName("user_id");
 
                 entity.HasOne(d => d.User).WithOne(p => p.Customer)
-                    .HasForeignKey<Customer>(d => d.UserId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK__Customers__UserI__4222D4EF");
+                    .HasForeignKey<Customer>(d => d.user_id)
+                    .OnDelete(DeleteBehavior.ClientSetNull);
             });
 
             modelBuilder.Entity<MenuCategory>(entity =>
@@ -263,24 +263,26 @@ namespace FoodOrderingApplicationFigma.Data
 
             modelBuilder.Entity<Review>(entity =>
             {
-                entity.HasKey(e => e.ReviewId).HasName("PK__Reviews__74BC79CEE15BC039");
+                entity.HasKey(e => e.review_id);
 
                 entity.ToTable("Reviews", "FoodOrderingSystem");
 
-                entity.Property(e => e.Comment).HasMaxLength(500);
-                entity.Property(e => e.CreatedAt)
+                entity.Property(e => e.review_id).HasColumnName("review_id");
+                entity.Property(e => e.customer_id).HasColumnName("customer_id");
+                entity.Property(e => e.restaurant_id).HasColumnName("restaurant_id");
+                entity.Property(e => e.rating).HasColumnName("rating");
+                entity.Property(e => e.comment).HasColumnName("comment").HasColumnType("nvarchar(max)");
+                entity.Property(e => e.created_at).HasColumnName("created_at")
                     .HasDefaultValueSql("(getdate())")
                     .HasColumnType("datetime");
 
                 entity.HasOne(d => d.Customer).WithMany(p => p.Reviews)
-                    .HasForeignKey(d => d.CustomerId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK__Reviews__Custome__76969D2E");
+                    .HasForeignKey(d => d.customer_id)
+                    .OnDelete(DeleteBehavior.ClientSetNull);
 
                 entity.HasOne(d => d.Restaurant).WithMany(p => p.Reviews)
-                    .HasForeignKey(d => d.RestaurantId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK__Reviews__Restaur__778AC167");
+                    .HasForeignKey(d => d.restaurant_id)
+                    .OnDelete(DeleteBehavior.ClientSetNull);
             });
 
             modelBuilder.Entity<Role>(entity =>

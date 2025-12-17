@@ -13,7 +13,7 @@ namespace FoodOrderingApplicationFigma.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize]
+    // [Authorize]
     public class ProfileController : ControllerBase
     {
         private readonly IUsers<User> _userRepository;

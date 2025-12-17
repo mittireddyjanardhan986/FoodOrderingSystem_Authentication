@@ -2,9 +2,9 @@
 {
     public partial class Customer
     {
-        public int CustomerId { get; set; }
+        public long customer_id { get; set; }
 
-        public int UserId { get; set; }
+        public int user_id { get; set; }
 
         public virtual ICollection<Review> Reviews { get; set; } = new List<Review>();
 

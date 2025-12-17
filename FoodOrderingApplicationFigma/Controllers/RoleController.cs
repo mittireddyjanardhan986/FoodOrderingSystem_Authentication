@@ -10,7 +10,7 @@ namespace FoodOrderingApplicationFigma.Controllers
     [Route("api/[controller]")]
     
     [ApiController]
-    [AuthorizeRole(1)]
+    // [AuthorizeRole(1)]
     public class RoleController : ControllerBase
     {
         private readonly IRoleService _roleService;

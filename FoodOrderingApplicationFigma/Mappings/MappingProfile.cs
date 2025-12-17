@@ -42,10 +42,15 @@ namespace FoodOrderingApplicationFigma.Mappings
 
             // Customer mappings
             CreateMap<Customer, GetCustomerDTO>()
+                .ForMember(dest => dest.CustomerId, opt => opt.MapFrom(src => src.customer_id))
+                .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.user_id))
                 .ForMember(dest => dest.UserFullName, opt => opt.MapFrom(src => src.User.FullName))
                 .ForMember(dest => dest.UserEmail, opt => opt.MapFrom(src => src.User.Email));
-            CreateMap<CreateCustomerDTO, Customer>();
-            CreateMap<UpdateCustomerDTO, Customer>();
+            CreateMap<CreateCustomerDTO, Customer>()
+                .ForMember(dest => dest.user_id, opt => opt.MapFrom(src => src.UserId));
+            CreateMap<UpdateCustomerDTO, Customer>()
+                .ForMember(dest => dest.customer_id, opt => opt.MapFrom(src => src.CustomerId))
+                .ForMember(dest => dest.user_id, opt => opt.MapFrom(src => src.UserId));
 
             // Restaurant mappings
             CreateMap<Restaurant, GetRestaurantDTO>()

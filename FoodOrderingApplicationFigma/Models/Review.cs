@@ -2,17 +2,17 @@
 {
     public partial class Review
     {
-        public int ReviewId { get; set; }
+        public long review_id { get; set; }
 
-        public int CustomerId { get; set; }
+        public long customer_id { get; set; }
 
-        public int RestaurantId { get; set; }
+        public int restaurant_id { get; set; }
 
-        public int Rating { get; set; }
+        public int rating { get; set; }
 
-        public string? Comment { get; set; }
+        public string? comment { get; set; }
 
-        public DateTime? CreatedAt { get; set; }
+        public DateTime? created_at { get; set; }
 
         public virtual Customer Customer { get; set; } = null!;
 

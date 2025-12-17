@@ -143,7 +143,7 @@ namespace FoodOrderingApplicationFigma.Controllers
                 };
                 var createdUser = await _userRepository.InsertUser(user);
 
-                var customer = new Customer { UserId = createdUser.UserId };
+                var customer = new Customer { user_id = createdUser.UserId };
                 await _customerService.CreateCustomer(new DTOs.CustomerDTOs.CreateCustomerDTO { UserId = createdUser.UserId });
 
                 return Ok(new { message = "Customer registered successfully", userId = createdUser.UserId });

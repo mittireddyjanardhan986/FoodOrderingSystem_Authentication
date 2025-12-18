@@ -17,16 +17,15 @@ namespace FoodOrderingApplicationFigma.Repository.Repositories
         public async Task<IEnumerable<Restaurant>> GetAllUsers()
         {
             return await _context.Restaurants
-                .Include(r => r.User)
                 .Include(r => r.City)
                 .Include(r => r.State)
+                .AsNoTracking()
                 .ToListAsync();
         }
 
         public async Task<Restaurant?> GetUserById(int id)
         {
             return await _context.Restaurants
-                .Include(r => r.User)
                 .Include(r => r.City)
                 .Include(r => r.State)
                 .FirstOrDefaultAsync(r => r.RestaurantId == id);
@@ -62,7 +61,6 @@ namespace FoodOrderingApplicationFigma.Repository.Repositories
         public async Task<IEnumerable<Restaurant>> GetRestaurantsByCityId(int cityId)
         {
             return await _context.Restaurants
-                .Include(r => r.User)
                 .Include(r => r.City)
                 .Include(r => r.State)
                 .Where(r => r.CityId == cityId)
@@ -72,7 +70,6 @@ namespace FoodOrderingApplicationFigma.Repository.Repositories
         public async Task<Restaurant?> GetUserByEmailOrPhone(string emailOrPhone)
         {
             return await _context.Restaurants
-                .Include(r => r.User)
                 .FirstOrDefaultAsync(r => r.User.Email == emailOrPhone || r.User.Phone == emailOrPhone);
         }
     }

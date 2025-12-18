@@ -22,7 +22,7 @@ namespace FoodOrderingApplicationFigma.Services.Service_Folder
         public async Task<AuthResponseDTO?> LoginAsync(LoginDTO loginDto)
         {
             var users = await _userRepository.GetAllUsers();
-            var user = users.FirstOrDefault(u => u.Email == loginDto.Email);
+            var user = users.FirstOrDefault(u => u.Email == loginDto.Identifier || u.Phone == loginDto.Identifier);
             
             if (user == null || !VerifyPassword(loginDto.Password, user.PasswordHash, user.PasswordSalt))
                 throw new Exception("Invalid Credentials");

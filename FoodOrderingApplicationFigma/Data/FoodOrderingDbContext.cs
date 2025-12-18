@@ -247,18 +247,23 @@ namespace FoodOrderingApplicationFigma.Data
 
                 entity.HasOne(d => d.City).WithMany(p => p.Restaurants)
                     .HasForeignKey(d => d.CityId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .OnDelete(DeleteBehavior.Restrict)
                     .HasConstraintName("FK__Restauran__CityI__5070F446");
 
                 entity.HasOne(d => d.State).WithMany(p => p.Restaurants)
                     .HasForeignKey(d => d.StateId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .OnDelete(DeleteBehavior.Restrict)
                     .HasConstraintName("FK__Restauran__State__5165187F");
+                
+                entity.Navigation(d => d.City).IsRequired();
+                entity.Navigation(d => d.State).IsRequired();
 
                 entity.HasOne(d => d.User).WithOne(p => p.Restaurant)
                     .HasForeignKey<Restaurant>(d => d.UserId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .OnDelete(DeleteBehavior.Restrict)
                     .HasConstraintName("FK__Restauran__UserI__4F7CD00D");
+                
+                entity.Navigation(d => d.User).IsRequired();
             });
 
             modelBuilder.Entity<Review>(entity =>

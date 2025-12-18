@@ -66,8 +66,7 @@ namespace FoodOrderingApplicationFigma.Services.Service_Folder
         {
             var restaurants = await _restaurantRepository.GetAllUsers();
             var restaurant = restaurants.FirstOrDefault(r => r.UserId == userId);
-            if (restaurant == null) throw new Exception("Restaurant Not Found");
-            return _mapper.Map<GetRestaurantDTO>(restaurant);
+            return restaurant != null ? _mapper.Map<GetRestaurantDTO>(restaurant) : null;
         }
     }
 }
